@@ -13,6 +13,7 @@ class CapSwitch:
 
         self.caps_lock = True
         self.running = False
+        self.need_capswitch = True
 
     def on_press(self, key):
         # These three statements are required to see
@@ -27,7 +28,7 @@ class CapSwitch:
             self.down_pressed = True
 
     def on_release(self, key):
-        if key == Key.caps_lock:
+        if key == Key.caps_lock and self.need_capswitch:
             self.capswitch()
 
         elif key == Key.pause:
@@ -50,29 +51,30 @@ class CapSwitch:
             self.controller.press('c')
             self.controller.release('c')
 
-        # Take what was copied and swap the case
-        clipboard = pyperclip.paste().swapcase()
+        copied_text = pyperclip.paste()
+        if copied_text != "":
+            # Take what was copied and swap the case
+            clipboard = copied_text.swapcase()
 
-        # Copy the "swap cased" text to the clipboard
-        pyperclip.copy(clipboard)
+            # Copy the "swap cased" text to the clipboard
+            pyperclip.copy(clipboard)
 
-        # Control + V to paste
-        with self.controller.pressed(Key.ctrl_l):
-            self.controller.press('v')
-            self.controller.release('v')
+            # Control + V to paste
+            with self.controller.pressed(Key.ctrl_l):
+                self.controller.press('v')
+                self.controller.release('v')
 
-        pasted = True
-        if pyperclip.paste() == "":
-            pasted = False
+            # Clear the clipboard
+            pyperclip.copy("")
 
-        # Clear the clipboard
-        pyperclip.copy("")
-
-        # If something was pasted,
-        # toggle caps lock again
-        if pasted:
+            # Toggle caps lock again to leave it
+            # as it was before we called capswitch.
+            # However, don't do a capswitch this time,
+            # as we don't want an infinite loop.
+            self.need_capswitch = False
             self.controller.press(Key.caps_lock)
             self.controller.release(Key.caps_lock)
+            self.need_capswitch = True
 
     def start_listener(self):
         self.running = True
