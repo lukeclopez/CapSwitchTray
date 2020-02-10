@@ -56,7 +56,7 @@ class CapSwitch:
             self.controller.release('c')
 
         copied_text = pyperclip.paste()
-        if copied_text != "":
+        if copied_text.strip() != "":
             # Take what was copied and swap the case
             clipboard = copied_text.swapcase()
 
