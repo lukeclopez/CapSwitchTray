@@ -15,6 +15,10 @@ class CapSwitch:
         self.running = False
         self.need_capswitch = True
 
+        # Empty the clipboard so it doesn't
+        # paste something random.
+        pyperclip.copy("")
+
     def on_press(self, key):
         # These three statements are required to see
         # If these keys are being pressed at the same time.
